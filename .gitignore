@@ -1,0 +1,20 @@
+# ROS2
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.pyc
+
+# Env
+.env
+
+# Models / checkpoints
+*.pt
+*.pth
+*.onnx
+
+# System
+.vscode/
+.DS_Store

@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>pepper_bringup</name>
+  <version>0.0.1</version>
+  <description>Bringup package for Pepper ROS 2 AI pipeline.</description>
+
+  <maintainer email="vishal@example.com">Vishal Shendge</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <depend>rclpy</depend>
+  <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>launch</depend>
+  <depend>launch_ros</depend>
+
+  <exec_depend>naoqi_driver</exec_depend>
+  <exec_depend>pepper_audio_transcriber</exec_depend>
+  <exec_depend>openai_server</exec_depend>
+  <exec_depend>openai_bridge</exec_depend>
+  <exec_depend>pepper_vlm</exec_depend>
+  <exec_depend>pepper_speech</exec_depend>
+  <exec_depend>pepper_dashboard</exec_depend>
+  <exec_depend>joy</exec_depend>
+  <exec_depend>pepper_Ps4</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

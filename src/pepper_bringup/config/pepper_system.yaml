@@ -1,0 +1,28 @@
+pepper_system:
+  ros__parameters:
+    nao_ip: "192.168.100.20"
+    host_ip: "192.168.100.172"
+    dashboard_port: 5000
+    dashboard_url: "http://192.168.100.172:5000/"
+
+    openai_model: "gpt-4o-mini"
+    require_wake_word: false
+
+    enable_naoqi_driver: true
+    enable_whisper: true
+    enable_openai_server: true
+    enable_transcription_bridge: true
+    enable_vlm: true
+    enable_tts: true
+    enable_dashboard: true
+    enable_teleop: true
+    enable_system_monitor: true
+
+    monitored_topics:
+      - "/audio"
+      - "/camera/front/image_raw"
+      - "/whisper_transcript"
+      - "/openai_response"
+      - "/smolvlm/output"
+      - "/cmd_vel"
+      - "/speech"
