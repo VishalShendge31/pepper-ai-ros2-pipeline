@@ -124,10 +124,12 @@ cd pepper_ws/src
 
 ---
 
-### 5.2 Build Workspace
+### 5.2 Install Dependencies and Build Workspace
 
 ```bash
 cd ~/pepper_ws
+
+rosdep install   --from-paths src/naoqi_driver2 src/naoqi_bridge_msgs src/naoqi_libqi src/naoqi_libqicore   --ignore-src   --rosdistro humble   -y
 
 source /opt/ros/humble/setup.bash
 colcon build --symlink-install
