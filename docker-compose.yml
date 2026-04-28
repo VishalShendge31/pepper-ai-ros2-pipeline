@@ -1,0 +1,63 @@
+version: "3.9"
+
+services:
+  pepper_ai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pepper-ai-ros2:latest
+    container_name: pepper_ai_pipeline
+
+    # ── Environment variables ──────────────────────────────
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PEPPER_IP=${PEPPER_IP:-192.168.100.20}
+      - PEPPER_USER=${PEPPER_USER:-nao}
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+      - DISPLAY=${DISPLAY:-:0}
+
+    # ── Ports ──────────────────────────────────────────────
+    ports:
+      - "5000:5000"   # Flask dashboard
+      - "11311:11311" # ROS (if needed for legacy bridging)
+
+    # ── Volumes ────────────────────────────────────────────
+    volumes:
+      # Allow SSH keys for connecting to Pepper
+      - ${HOME}/.ssh:/root/.ssh:ro
+      # Persist pip/torch model caches across restarts
+      - pepper_model_cache:/root/.cache
+      # Optional: mount live source for development
+      # - ./src:/pepper_ws/src
+
+    # ── Host networking (required for ROS 2 DDS discovery) ─
+    network_mode: host
+
+    # ── Devices ────────────────────────────────────────────
+    devices:
+      # PS4 controller (joystick)
+      - /dev/input:/dev/input
+      # Sound card (if doing local audio capture)
+      - /dev/snd:/dev/snd
+
+    # ── GPU support (uncomment if NVIDIA GPU available) ────
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+    # ── Runtime options ───────────────────────────────────
+    privileged: false
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+    # Default command — override with: docker compose run pepper_ai bash
+    command: >
+      ros2 launch pepper_bringup pepper_full_system.launch.py
+
+volumes:
+  pepper_model_cache:
