@@ -1,50 +1,116 @@
-Below is a complete, technically rigorous README for your full system. It consolidates the bringup package, all dependent modules, runtime orchestration, and Pepper-side execution into a reproducible workflow.
+# Pepper AI Pipeline (ROS 2 Humble)
+
+A real-time multimodal AI system for the **SoftBank Pepper** robot built on **ROS 2 Humble**.
+The host PC runs all AI inference; Pepper handles sensing and actuation over the local network via NAOqi.
+
+**Pipeline:** microphone → VAD → ASR → LLM → TTS → Pepper speech
+**Parallel:** camera → vision-language model → Flask dashboard → Pepper tablet
 
 ---
 
-# Pepper AI System (ROS 2 Full Pipeline)
-
-## 1. Overview
-
-This repository implements a **real-time multimodal AI pipeline on Pepper** using ROS 2. The system integrates:
-
-* Speech recognition (Whisper ASR)
-* Language reasoning (OpenAI LLM)
-* Vision-language perception (VLM)
-* Speech synthesis (TTS on Pepper)
-* Teleoperation (PS4 controller)
-* Live dashboard visualization (Flask → Pepper Tablet)
-
-The architecture follows a **distributed design**:
-
-* Pepper handles sensing, actuation, and tablet display
-* Host PC performs all AI computation
-
-Core data flow:
+## Architecture
 
 ```
-Audio → ASR → LLM → TTS → Pepper Speech
-Camera → VLM → Dashboard
-```
+HOST PC
+├── pepper_audio_transcriber  Silero VAD + Faster-Whisper → /whisper_transcript
+├── openai_bridge             /whisper_transcript → OpenAI GPT → /openai_response
+├── pepper_speech             /openai_response → NAOqi /speech  (or Orpheus TCP audio)
+├── pepper_vlm                /camera/front/image_raw → SmolVLM-500M → /smolvlm/output
+├── pepper_dashboard          Flask :5000 — streams camera, transcript, VLM output
+├── pepper_Ps4                joy_node → /cmd_vel teleoperation
+└── naoqi_driver2             NAOqi ↔ ROS 2 bridge (C++)
 
-Key ROS topics include `/whisper_transcript`, `/openai_response`, `/smolvlm/output`, and `/camera/front/image_raw`, which form the backbone of the pipeline. 
+PEPPER ROBOT
+├── Publishes  /audio  /camera/front/image_raw
+├── Subscribes /speech  /cmd_vel
+└── Tablet → WebView → http://<host>:5000
+```
 
 ---
 
-## 2. System Architecture
+## Models
 
-### 2.1 Robot Side (Pepper)
+### Faster-Whisper (ASR)
+Model: `openai/whisper-small` via `faster-whisper` (CTranslate2 backend)
 
-* NAOqi runtime (2.5.x)
-* Sensor publishers:
+Whisper small runs entirely on the host CPU/GPU with no cloud dependency.
+The CTranslate2 runtime gives roughly 4× speedup over the original PyTorch implementation
+at identical accuracy, which matters for sub-second transcription latency on a single GPU.
 
-  * `/audio`
-  * `/camera/front/image_raw`
-* Actuators:
+Silero VAD gates Whisper — it processes 512-sample frames at 16 kHz and only triggers
+transcription when a complete speech segment is detected (start + end events).
+Without VAD, Whisper hallucinates text on silence and wastes compute.
 
-  * `/cmd_vel` (motion)
-  * `/speech` (audio output)
-* Tablet rendering via `ALTabletService`
+Wake-word logic is layered on top: after detecting one of the configured wake phrases
+("Hey Pepper", "Hello Pepper", etc.) the node enters a timed activation window
+(default 10 s) and forwards all subsequent speech to the LLM. This prevents
+accidental activations from background conversation.
+
+```
+Pepper /audio (AudioBuffer)
+  ↓ down-mix channels → mono
+  ↓ resample to 16 kHz (librosa if needed)
+  ↓ Silero VAD — 512-sample frames, threshold=0.5
+  ↓ segment collected (speech_start → speech_end or max 20 s)
+  ↓ Faster-Whisper.transcribe(beam_size=5, condition_on_previous_text=False)
+  ↓ language filter (en / de only)
+  ↓ wake-word check → publish /whisper_transcript
+```
+
+Key ROS 2 parameters:
+
+| Parameter | Default | Notes |
+|---|---|---|
+| `model_size` | `small` | `tiny` / `small` / `medium` / `large-v3` |
+| `language` | `en` | blank = auto-detect |
+| `vad_threshold` | `0.5` | Silero speech probability cutoff |
+| `min_silence_duration_ms` | `500` | Gap before segment end is declared |
+| `require_wake_word` | `true` | Gate on "Hey Pepper" before forwarding |
+| `wake_words` | `["hey pepper"]` | Configurable list |
+| `activation_timeout_sec` | `10.0` | Listen window after wake word |
+| `max_segment_sec` | `20.0` | Hard cap before forced transcription |
+
+---
+
+### OpenAI GPT (LLM)
+Model: configurable via `OPENAI_API_KEY` — gpt-4o, gpt-4, gpt-3.5-turbo
+
+Running a GPT-4-class model locally requires at minimum 80 GB VRAM. The OpenAI API
+offloads this cleanly. The `openai_server` node exposes a custom ROS 2 service
+(`openai_server_interfaces/OpenaiServer`) so any node in the graph can query the LLM
+without knowing the transport details. The `openai_bridge` node wires
+`/whisper_transcript` → service call → `/openai_response`.
+
+---
+
+### SmolVLM-500M-Instruct (Vision-Language)
+Model: `HuggingFaceTB/SmolVLM-500M-Instruct`
+
+VLMs in the 7B–13B range (LLaVA, InstructBLIP) need 16–24 GB VRAM and take 5–10 s
+per image — unusable at Pepper's camera rate. SmolVLM at 500M parameters fits in
+roughly 1 GB VRAM (bfloat16) and runs in ~1–2 s per inference on a consumer GPU,
+or ~4–6 s on CPU. This makes real-time scene description viable.
+
+The node processes one frame every 1.5 s (configurable). A processing lock prevents
+queue pile-up when inference is slower than the topic rate.
+
+```
+/camera/front/image_raw (sensor_msgs/Image)
+  ↓ cv_bridge → BGR → PIL.Image (RGB)
+  ↓ AutoProcessor — resize longest edge to 768 px
+  ↓ apply_chat_template + image tokens
+  ↓ model.generate(max_new_tokens=80, do_sample=False)
+  ↓ decode → strip "Assistant:" prefix
+  ↓ publish /smolvlm/output
+```
+
+Prompt used at inference:
+```
+Describe the robot camera image concisely. Mention people, objects, visible
+gestures, and emotion. If someone is waving, explicitly say: someone is waving.
+```
+
+Device selection is automatic: CUDA if available, otherwise CPU.
 
 ---
 
