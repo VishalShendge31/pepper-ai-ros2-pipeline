@@ -327,8 +327,7 @@ Test from Pepper: `wget http://<host-ip>:5000/`.
 
 ## Maintainer
 
-Vishal Shendge — [vishal.shendge@igcv.fraunhofer.de](mailto:vishal.shendge@igcv.fraunhofer.de)
-Fraunhofer IGCV
+Vishal Shendge — [shendge.vishal.vilas@gmail.com](mailto:shendge.vishal.vilas@gmail.com)
 
 ---
 
