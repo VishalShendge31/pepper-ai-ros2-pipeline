@@ -1,7 +1,3 @@
-Below is a complete, technically rigorous README for your full system. It consolidates the bringup package, all dependent modules, runtime orchestration, and Pepper-side execution into a reproducible workflow.
-
----
-
 # Pepper AI System (ROS 2 Full Pipeline)
 
 ## 1. Overview
