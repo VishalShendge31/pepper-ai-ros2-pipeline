@@ -1,0 +1,22 @@
+repositories:
+  # NAOqi-specific deps
+  naoqi_libqi:
+    type: git
+    url: https://github.com/ros-naoqi/libqi.git
+    version: ros2
+  naoqi_libqicore:
+    type: git
+    url: https://github.com/ros-naoqi/libqicore.git
+    version: ros2
+  naoqi_bridge_msgs:
+    type: git
+    url: https://github.com/ros-naoqi/naoqi_bridge_msgs2.git
+    version: main
+  nao_meshes:
+    type: git
+    url: https://github.com/ros-naoqi/nao_meshes2.git
+    version: main
+  pepper_meshes:
+    type: git
+    url: https://github.com/ros-naoqi/pepper_meshes2.git
+    version: main

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>pepper_moveit2_bridge</name>
+  <version>0.1.0</version>
+  <description>MoveIt 2 planning bridge for Pepper. Plans named MoveIt targets and converts planned JointTrajectory messages to Pepper /joint_angles commands.</description>
+
+  <maintainer email="shendge.vishal.vilas@gmail.com">robot</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>rclpy</depend>
+  <depend>std_msgs</depend>
+  <depend>trajectory_msgs</depend>
+  <depend>builtin_interfaces</depend>
+  <depend>naoqi_bridge_msgs</depend>
+  <depend>moveit_ros_planning_interface</depend>
+  <depend>moveit_msgs</depend>
+
+  <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>pepper_moveit2_config</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

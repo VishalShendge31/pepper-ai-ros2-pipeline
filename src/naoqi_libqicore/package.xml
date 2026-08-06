@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>naoqi_libqicore</name>
+  <version>3.0.0</version>
+  <description>Aldebaran's libqicore: a layer on top of libqi</description>
+
+  <maintainer email="victor.paleologue@palaio.eu">Victor Paléologue</maintainer>
+  <maintainer email="mbusy@softbankrobotics.com">Maxime Busy</maintainer>
+  <maintainer email="surya.ambrose@gmail.com">Surya Ambrose</maintainer>
+  <license>BSD</license>
+
+  <url type="repository">https://github.com/aldebaran/libqicore</url>
+
+  <author>Aldebaran</author>
+
+  <depend>naoqi_libqi</depend>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

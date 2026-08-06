@@ -1,0 +1,46 @@
+# ROS 2 build artifacts
+build/
+install/
+log/
+logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+**/sparktts_venv/
+**/pepper_venv/
+
+# IDE / OS
+.vscode/
+.idea/
+.cursor/
+*.swp
+.DS_Store
+
+# Secrets and local env
+.env
+.env.*
+**/openai.env
+config/openai.env
+**/secrets/
+*.pem
+*.key
+
+# Large local model caches (keep source only)
+models/
+**/models/
+*.onnx
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.gguf
+
+# Temp / copies
+**/tmp/
+*.log
+* (copy).*
+* (another copy).*

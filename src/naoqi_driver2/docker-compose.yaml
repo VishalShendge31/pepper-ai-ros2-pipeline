@@ -1,0 +1,30 @@
+# Docker Compose file for developer containers
+#
+# Usage:
+#
+# ROS_DISTRO=<distro> docker compose up dev --build
+#
+# To open an interactive shell to a running container:
+#   docker exec -it naoqi_driver-dev-1 bash
+
+version: "3.9"
+services:
+  dev:
+    image: naoqi-driver:dev-$ROS_DISTRO
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: dev
+      args:
+        - ROS_DISTRO=$ROS_DISTRO
+
+    # Interactive shell
+    stdin_open: true
+    tty: true
+
+    # Networking and IPC for ROS 2
+    network_mode: host
+    ipc: host
+    volumes:
+      # Mount the source code
+      - .:/ws/src/naoqi_driver:rw

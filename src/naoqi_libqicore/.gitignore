@@ -1,0 +1,4 @@
+build-*
+python-qicore/dist
+CMakeLists.txt.user
+*.pyc

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>pepper_meshes</name>
+  <version>3.0.0</version>
+  <description>Local Pepper mesh package for ROS 2 Humble on Jetson.</description>
+
+  <maintainer email="shendge.vishal.vilas@gmail.com">robot</maintainer>
+  <license>Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International Public License</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

@@ -1,0 +1,5 @@
+string prompt
+bool reset_conversation
+string pre_prompt
+---
+string response
