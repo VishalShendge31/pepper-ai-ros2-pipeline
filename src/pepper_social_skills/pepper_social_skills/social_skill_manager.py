@@ -31,9 +31,12 @@ class SocialSkillManager(Node):
 
         self.declare_parameter("transcript_topic", "/whisper_transcript")
         self.declare_parameter("vlm_topic", "/smolvlm/output")
+        self.declare_parameter("recognized_faces_topic", "/recognized_faces")
+        self.declare_parameter("use_face_detections", True)
 
         self.declare_parameter("response_topic", "/openai_response")
-        self.declare_parameter("cmd_vel_topic", "/cmd_vel")
+        # Publish stops onto the social mux input by default.
+        self.declare_parameter("cmd_vel_topic", "/cmd_vel_social")
 
         self.declare_parameter("state_topic", "/social_skill/state")
         self.declare_parameter("event_topic", "/social_skill/event")
@@ -71,6 +74,8 @@ class SocialSkillManager(Node):
 
         self.transcript_topic = self.get_parameter("transcript_topic").value
         self.vlm_topic = self.get_parameter("vlm_topic").value
+        self.recognized_faces_topic = self.get_parameter("recognized_faces_topic").value
+        self.use_face_detections = bool(self.get_parameter("use_face_detections").value)
 
         self.response_topic = self.get_parameter("response_topic").value
         self.cmd_vel_topic = self.get_parameter("cmd_vel_topic").value
@@ -107,6 +112,7 @@ class SocialSkillManager(Node):
 
         self.latest_vlm = ""
         self.latest_transcript = ""
+        self.latest_faces = []
 
         self.state = SocialState.IDLE
         self.active_skill = "idle"
@@ -128,6 +134,13 @@ class SocialSkillManager(Node):
             String,
             self.vlm_topic,
             self.vlm_callback,
+            10,
+        )
+
+        self.sub_faces = self.create_subscription(
+            String,
+            self.recognized_faces_topic,
+            self.faces_callback,
             10,
         )
 
@@ -171,7 +184,9 @@ class SocialSkillManager(Node):
         self.get_logger().info("Pepper Social Skill Manager läuft.")
         self.get_logger().info(f"Transcript Topic: {self.transcript_topic}")
         self.get_logger().info(f"VLM Topic: {self.vlm_topic}")
+        self.get_logger().info(f"Faces Topic: {self.recognized_faces_topic}")
         self.get_logger().info(f"Response Topic: {self.response_topic}")
+        self.get_logger().info(f"cmd_vel Topic: {self.cmd_vel_topic}")
         self.get_logger().info(f"OpenAI Service: {self.openai_service}")
 
     def normalize(self, text: str) -> str:
@@ -238,7 +253,56 @@ class SocialSkillManager(Node):
             "scene": scene,
         }
 
+    def faces_callback(self, msg: String):
+        if not self.use_face_detections:
+            return
+
+        text = (msg.data or "").strip()
+        if not text:
+            self.latest_faces = []
+            return
+
+        try:
+            payload = json.loads(text)
+            faces = payload.get("faces", [])
+            if not isinstance(faces, list):
+                faces = []
+            self.latest_faces = faces
+            if faces:
+                self.last_person_seen_time = time.time()
+        except Exception as exc:
+            self.get_logger().warn(f"Failed to parse /recognized_faces: {exc}")
+            self.latest_faces = []
+
+    def primary_face(self) -> dict:
+        if not self.latest_faces:
+            return {}
+        return self.latest_faces[0] if isinstance(self.latest_faces[0], dict) else {}
+
+    def face_person_label(self) -> str:
+        face = self.primary_face()
+        gender = str(face.get("gender", "")).lower().strip()
+        if gender in ["male", "man", "männlich"]:
+            return "male"
+        if gender in ["female", "woman", "weiblich"]:
+            return "female"
+        if self.latest_faces:
+            return "unknown"
+        return "none"
+
+    def face_emotion_label(self) -> str:
+        face = self.primary_face()
+        emotion = str(
+            face.get("dominant_expression")
+            or face.get("emotion")
+            or face.get("expression")
+            or ""
+        ).lower().strip().replace(" ", "_")
+        return emotion or "unknown"
+
     def detect_person(self, vlm_text: str) -> bool:
+        if self.use_face_detections and self.latest_faces:
+            return True
         ctx = self.parse_vlm_context(vlm_text)
         return ctx["person"] in ["male", "female", "unknown"]
 
@@ -265,9 +329,6 @@ class SocialSkillManager(Node):
         )
 
     def detect_emotion_hint(self, vlm_text: str) -> str:
-        ctx = self.parse_vlm_context(vlm_text)
-        emotion = ctx["emotion"]
-
         emotion_map = {
             "happy": "positiv",
             "smiling": "positiv",
@@ -280,6 +341,14 @@ class SocialSkillManager(Node):
             "tired": "müde",
             "sleepy": "müde",
         }
+
+        if self.use_face_detections:
+            face_emotion = self.face_emotion_label()
+            if face_emotion in emotion_map:
+                return emotion_map[face_emotion]
+
+        ctx = self.parse_vlm_context(vlm_text)
+        emotion = ctx["emotion"]
 
         if emotion in emotion_map:
             return emotion_map[emotion]
@@ -304,24 +373,23 @@ class SocialSkillManager(Node):
         if not scene or scene.lower() in ["unknown", "none"]:
             scene = "Ich habe im Moment keine zuverlässige Kamerabeschreibung."
 
-        hints = []
+        person = ctx["person"]
+        emotion = ctx["emotion"]
+        if self.use_face_detections and self.latest_faces:
+            face_person = self.face_person_label()
+            if face_person != "none":
+                person = face_person
+            face_emotion = self.face_emotion_label()
+            if face_emotion != "unknown":
+                emotion = face_emotion
 
-        if ctx["person"] in ["male", "female"]:
-            hints.append(f"Person: {ctx['person']}")
-        elif ctx["person"] == "unknown":
-            hints.append("Person: unknown")
-        else:
-            hints.append("Person: none")
-
-        if ctx["gesture"] not in ["", "none", "unknown"]:
-            hints.append(f"Geste: {ctx['gesture']}")
-        else:
-            hints.append(f"Geste: {ctx['gesture']}")
-
-        if ctx["emotion"] not in ["", "unknown"]:
-            hints.append(f"Emotion: {ctx['emotion']}")
-        else:
-            hints.append("Emotion: unknown")
+        hints = [
+            f"Person: {person}",
+            f"Geste: {ctx['gesture'] or 'unknown'}",
+            f"Emotion: {emotion or 'unknown'}",
+        ]
+        if self.use_face_detections and self.latest_faces:
+            hints.append(f"Gesichter: {len(self.latest_faces)}")
 
         return f"{scene} Erkannte Hinweise: {', '.join(hints)}."
 
@@ -597,6 +665,24 @@ class SocialSkillManager(Node):
             parts.append("\n[Geparste visuelle Hinweise]")
             parts.append(json.dumps(ctx, ensure_ascii=False))
 
+        if self.use_face_detections and self.latest_faces:
+            face = self.primary_face()
+            parts.append("\n[Gesichtserkennung]")
+            parts.append(
+                json.dumps(
+                    {
+                        "faces_detected": len(self.latest_faces),
+                        "primary_user_id": face.get("user_id"),
+                        "primary_gender": face.get("gender"),
+                        "primary_expression": face.get("dominant_expression")
+                        or face.get("emotion")
+                        or face.get("expression"),
+                        "is_new": face.get("is_new"),
+                    },
+                    ensure_ascii=False,
+                )
+            )
+
         emotion_hint = self.detect_emotion_hint(self.latest_vlm)
         if emotion_hint != "unbekannt":
             parts.append("\n[Erkannter sozialer Hinweis]")
@@ -688,7 +774,7 @@ class SocialSkillManager(Node):
         twist.angular.y = 0.0
         twist.angular.z = 0.0
         self.pub_cmd_vel.publish(twist)
-        self.get_logger().info("Zero velocity wurde an /cmd_vel gesendet.")
+        self.get_logger().info(f"Zero velocity wurde an {self.cmd_vel_topic} gesendet.")
 
     def timer_callback(self):
         now = time.time()

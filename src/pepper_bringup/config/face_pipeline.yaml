@@ -1,0 +1,7 @@
+/**:
+  ros__parameters:
+    input_topic: "/preprocessed_frames"
+    output_topic: "/face_detections"
+    faceapi_path: "~/face-api-project"
+    pipeline_script: "final-pipeline.js"
+    min_frame_interval: 20

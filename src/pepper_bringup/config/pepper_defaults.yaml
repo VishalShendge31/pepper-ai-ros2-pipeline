@@ -1,0 +1,17 @@
+# Shared network / path defaults for Pepper demos.
+# Override at runtime with env vars or launch args:
+#   PEPPER_IP, PEPPER_HOST_IP (or HOST_IP), PEPPER_WS, FACEAPI_PATH, PEPPER_USER
+
+nao_ip: "192.168.100.20"
+host_ip: "192.168.100.172"
+robot_user: "nao"
+dashboard_port: "5000"
+pepper_ws: "~/pepper_ws"
+faceapi_path: "~/face-api-project"
+maps_dir: "~/pepper_ws/maps"
+
+# Motion arbitration topics (pepper_cmd_vel_mux)
+cmd_vel_out: "/cmd_vel"
+cmd_vel_teleop: "/cmd_vel_teleop"
+cmd_vel_nav: "/cmd_vel_nav"
+cmd_vel_social: "/cmd_vel_social"

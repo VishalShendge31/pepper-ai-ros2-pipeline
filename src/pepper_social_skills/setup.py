@@ -26,6 +26,7 @@ setup(
             'social_skill_manager = pepper_social_skills.social_skill_manager:main',
             'pepper_gesture_node = pepper_social_skills.pepper_gesture_node:main',
             'pepper_naoqi_animation_node = pepper_social_skills.pepper_naoqi_animation_node:main',
+            'enhanced_tracking_layer = pepper_social_skills.enhanced_tracking_layer:main',
         ],
     },
 )

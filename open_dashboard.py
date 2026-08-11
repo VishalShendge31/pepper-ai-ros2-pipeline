@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 from naoqi import ALProxy
+import os
 import time
 
-HOST_DASHBOARD_URL = "http://192.168.100.172:5000/"
+HOST_IP = os.environ.get("PEPPER_HOST_IP", os.environ.get("HOST_IP", "192.168.100.172"))
+DASHBOARD_PORT = os.environ.get("DASHBOARD_PORT", "5000")
+HOST_DASHBOARD_URL = "http://%s:%s/" % (HOST_IP, DASHBOARD_PORT)
 
 ROBOT_IP = "127.0.0.1"
 ROBOT_PORT = 9559

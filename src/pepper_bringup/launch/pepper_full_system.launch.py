@@ -1,3 +1,5 @@
+import os
+
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, ExecuteProcess, TimerAction, LogInfo
 from launch.conditions import IfCondition
@@ -7,9 +9,20 @@ from launch_ros.substitutions import FindPackageShare
 from launch_ros.parameter_descriptions import ParameterValue
 
 
+DEFAULT_NAO_IP = os.environ.get("PEPPER_IP", "192.168.100.20")
+DEFAULT_HOST_IP = os.environ.get("PEPPER_HOST_IP", os.environ.get("HOST_IP", "192.168.100.172"))
+DEFAULT_ROBOT_USER = os.environ.get("PEPPER_USER", "nao")
+DEFAULT_PEPPER_WS = os.path.expanduser(os.environ.get("PEPPER_WS", "~/pepper_ws"))
+DEFAULT_FACEAPI_PATH = os.path.expanduser(
+    os.environ.get("FACEAPI_PATH", "~/face-api-project")
+)
+
+
 def generate_launch_description():
     nao_ip = LaunchConfiguration("nao_ip")
     robot_user = LaunchConfiguration("robot_user")
+    pepper_ws = LaunchConfiguration("pepper_ws")
+    faceapi_path = LaunchConfiguration("faceapi_path")
     openai_api_key = LaunchConfiguration("openai_api_key")
     openai_model = LaunchConfiguration("openai_model")
     require_wake_word = LaunchConfiguration("require_wake_word")
@@ -42,10 +55,12 @@ def generate_launch_description():
     ])
 
     return LaunchDescription([
-        DeclareLaunchArgument("nao_ip", default_value="192.168.100.20"),
-        DeclareLaunchArgument("robot_user", default_value="nao"),
-        DeclareLaunchArgument("host_ip", default_value="192.168.100.172"),
+        DeclareLaunchArgument("nao_ip", default_value=DEFAULT_NAO_IP),
+        DeclareLaunchArgument("robot_user", default_value=DEFAULT_ROBOT_USER),
+        DeclareLaunchArgument("host_ip", default_value=DEFAULT_HOST_IP),
         DeclareLaunchArgument("dashboard_port", default_value="5000"),
+        DeclareLaunchArgument("pepper_ws", default_value=DEFAULT_PEPPER_WS),
+        DeclareLaunchArgument("faceapi_path", default_value=DEFAULT_FACEAPI_PATH),
 
         DeclareLaunchArgument(
             "openai_api_key",
@@ -67,6 +82,10 @@ def generate_launch_description():
         DeclareLaunchArgument("enable_teleop", default_value="true"),
         DeclareLaunchArgument("enable_system_monitor", default_value="true"),
         DeclareLaunchArgument("enable_social_skills", default_value="true"),
+        # Optional Face-API chain (requires ~/face-api-project or FACEAPI_PATH).
+        DeclareLaunchArgument("enable_face_pipeline", default_value="false"),
+        # Priority mux: social stop > teleop > nav -> /cmd_vel
+        DeclareLaunchArgument("enable_cmd_vel_mux", default_value="true"),
 
         # Disabled by default for stable demos because NAOqi AnimatedSpeech already moves the body.
         # Enable manually when testing custom /joint_angles gestures.
@@ -91,7 +110,9 @@ def generate_launch_description():
                 "-c",
                 [
                     "source /opt/ros/humble/setup.bash && "
-                    "source ~/pepper_ws/install/setup.bash && "
+                    "source ",
+                    pepper_ws,
+                    "/install/setup.bash && "
                     "ros2 launch naoqi_driver naoqi_driver.launch.py nao_ip:=",
                     nao_ip,
                 ],
@@ -146,7 +167,9 @@ def generate_launch_description():
                         "-c",
                         [
                             "source /opt/ros/humble/setup.bash && "
-                            "source ~/pepper_ws/install/setup.bash && "
+                            "source ",
+                            pepper_ws,
+                            "/install/setup.bash && "
                             "ros2 launch openai_server openai_server_launch.py "
                             "openai_api_key:=",
                             openai_api_key,
@@ -196,6 +219,55 @@ def generate_launch_description():
             ],
         ),
 
+        # Optional Face-API perception chain (default off).
+        TimerAction(
+            period=13.0,
+            actions=[
+                Node(
+                    condition=IfCondition(LaunchConfiguration("enable_face_pipeline")),
+                    package="pepper_vlm",
+                    executable="pepper_camera_face_preprocessor",
+                    name="pepper_camera_face_preprocessor",
+                    output="screen",
+                    parameters=[
+                        {
+                            "input_topic": "/camera/front/image_raw",
+                            "output_topic": "/preprocessed_frames",
+                        }
+                    ],
+                ),
+                Node(
+                    condition=IfCondition(LaunchConfiguration("enable_face_pipeline")),
+                    package="pepper_vlm",
+                    executable="detection_layer",
+                    name="detection_layer",
+                    output="screen",
+                    parameters=[
+                        {
+                            "input_topic": "/preprocessed_frames",
+                            "output_topic": "/face_detections",
+                            "faceapi_path": faceapi_path,
+                            "pipeline_script": "final-pipeline.js",
+                            "min_frame_interval": 20,
+                        }
+                    ],
+                ),
+                Node(
+                    condition=IfCondition(LaunchConfiguration("enable_face_pipeline")),
+                    package="pepper_social_skills",
+                    executable="enhanced_tracking_layer",
+                    name="enhanced_tracking_layer",
+                    output="screen",
+                    parameters=[
+                        {
+                            "input_topic": "/face_detections",
+                            "output_topic": "/recognized_faces",
+                        }
+                    ],
+                ),
+            ],
+        ),
+
         TimerAction(
             period=14.0,
             actions=[
@@ -234,6 +306,28 @@ def generate_launch_description():
         ),
 
         TimerAction(
+            period=17.0,
+            actions=[
+                Node(
+                    condition=IfCondition(LaunchConfiguration("enable_cmd_vel_mux")),
+                    package="pepper_bringup",
+                    executable="cmd_vel_mux",
+                    name="pepper_cmd_vel_mux",
+                    output="screen",
+                    parameters=[
+                        {
+                            "output_topic": "/cmd_vel",
+                            "teleop_topic": "/cmd_vel_teleop",
+                            "nav_topic": "/cmd_vel_nav",
+                            "social_topic": "/cmd_vel_social",
+                            "publish_rate_hz": 20.0,
+                        }
+                    ],
+                )
+            ],
+        ),
+
+        TimerAction(
             period=18.0,
             actions=[
                 Node(
@@ -251,6 +345,7 @@ def generate_launch_description():
                     output="screen",
                     parameters=[
                         {
+                            "cmd_vel_topic": "/cmd_vel_teleop",
                             "deadzone": 0.35,
                             "neutral_calibration_samples": 25,
                             "movement_activation_frames": 2,

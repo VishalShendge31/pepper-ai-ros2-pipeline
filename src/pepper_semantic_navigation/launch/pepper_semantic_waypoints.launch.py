@@ -1,7 +1,16 @@
+import os
+
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+
+
+DEFAULT_WAYPOINTS = os.path.join(
+    os.path.expanduser(os.environ.get("PEPPER_WS", "~/pepper_ws")),
+    "maps",
+    "pepper_waypoints.yaml",
+)
 
 
 def generate_launch_description():
@@ -10,7 +19,7 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(
             "waypoints_file",
-            default_value="/home/robot/pepper_ws/maps/pepper_waypoints.yaml",
+            default_value=DEFAULT_WAYPOINTS,
             description="YAML file where named semantic places are stored",
         ),
         Node(

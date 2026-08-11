@@ -417,16 +417,23 @@ OpenAI usage incurs API cost. Local models need disk space, GPU memory, and firs
 
 ## Configuration notes
 
-- Many launches assume deploy paths under `~/pepper_ws` (or `/home/robot/pepper_ws` on some Jetsons). Adjust paths if your username differs.
-- Default social / animation configs ship in-repo under `pepper_social_skills/config/`:
-  - `social_skills.yaml`
-  - `pepper_actions.json`
-  - `pepper_naoqi_animations.json`
-- SLAM defaults: `pepper_navigation/config/slam_toolbox.yaml`, `pepper_semantic_navigation/config/slam_toolbox_pepper.yaml`
-- MoveIt starter configs: `pepper_moveit2_config/config/` (validate named poses in RViz before real-robot execution)
-- `pepper_vlm` publishes structured `PERSON` / `GESTURE` / `EMOTION` / `SCENE` lines so `social_skill_manager` can consume camera context
-- Headless Jetson start: `./start_pepper_system_headless.sh` (uses `OPENAI_API_KEY` from the environment; no `gnome-terminal`)
-- Default language behavior in speech helpers is oriented toward **German**; Whisper can be set with `whisper_language:=auto` (or a specific language code).
+Shared defaults live in `pepper_bringup/config/pepper_defaults.yaml`. Override with env vars or launch args:
+
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `PEPPER_IP` | Robot IP | `192.168.100.20` |
+| `PEPPER_HOST_IP` / `HOST_IP` | Jetson/host IP | `192.168.100.172` |
+| `PEPPER_WS` | Workspace root | `~/pepper_ws` |
+| `FACEAPI_PATH` | Face-API project | `~/face-api-project` |
+| `OPENAI_API_KEY` | GPT access | (required) |
+| `ENABLE_FACE_PIPELINE` | Start Face-API chain | `false` |
+
+- Default social / animation configs: `pepper_social_skills/config/`
+- Face pipeline (optional): `enable_face_pipeline:=true` launches preprocessor → `detection_layer` → `enhanced_tracking_layer` → `/recognized_faces` (also consumed by `social_skill_manager` + dashboard)
+- Motion arbitration: `pepper_cmd_vel_mux` merges `/cmd_vel_social` > `/cmd_vel_teleop` > `/cmd_vel_nav` into `/cmd_vel` (`enable_cmd_vel_mux:=true` by default)
+- Autonomous nav should keep `enable_teleop:=false` so Nav2 owns `/cmd_vel`
+- Headless Jetson start: `./start_pepper_system_headless.sh`
+- Default speech language is **German**; Whisper: `whisper_language:=auto`
 
 ---
 

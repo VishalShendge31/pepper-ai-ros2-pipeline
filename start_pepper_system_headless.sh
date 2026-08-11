@@ -7,14 +7,16 @@ echo "========================================"
 
 PEPPER_IP="${PEPPER_IP:-192.168.100.20}"
 PEPPER_USER="${PEPPER_USER:-nao}"
-HOST_IP="${HOST_IP:-192.168.100.172}"
+HOST_IP="${PEPPER_HOST_IP:-${HOST_IP:-192.168.100.172}}"
 DASHBOARD_PORT="${DASHBOARD_PORT:-5000}"
 OPENAI_MODEL="${OPENAI_MODEL:-gpt-4o-mini}"
 OPENAI_KEY="${OPENAI_API_KEY:-}"
 REQUIRE_WAKE_WORD="${REQUIRE_WAKE_WORD:-true}"
 WHISPER_LANGUAGE="${WHISPER_LANGUAGE:-auto}"
-WORKSPACE="${WORKSPACE:-${HOME}/pepper_ws}"
+WORKSPACE="${PEPPER_WS:-${HOME}/pepper_ws}"
 LOG_DIR="${LOG_DIR:-${WORKSPACE}/logs}"
+ENABLE_FACE_PIPELINE="${ENABLE_FACE_PIPELINE:-false}"
+FACEAPI_PATH="${FACEAPI_PATH:-${HOME}/face-api-project}"
 
 if [ -z "${OPENAI_KEY}" ] || \
    [ "${OPENAI_KEY}" = "openai-key" ] || \
@@ -74,10 +76,16 @@ nohup bash -lc "
   source /opt/ros/humble/setup.bash
   source install/setup.bash
   export OPENAI_API_KEY='${OPENAI_KEY}'
+  export PEPPER_IP='${PEPPER_IP}'
+  export PEPPER_HOST_IP='${HOST_IP}'
+  export PEPPER_WS='${WORKSPACE}'
+  export FACEAPI_PATH='${FACEAPI_PATH}'
   ros2 launch pepper_bringup pepper_full_system.launch.py \
     nao_ip:=${PEPPER_IP} \
     robot_user:=${PEPPER_USER} \
     host_ip:=${HOST_IP} \
+    pepper_ws:=${WORKSPACE} \
+    faceapi_path:=${FACEAPI_PATH} \
     dashboard_port:=${DASHBOARD_PORT} \
     enable_naoqi_driver:=true \
     enable_whisper:=true \
@@ -89,6 +97,8 @@ nohup bash -lc "
     enable_teleop:=true \
     enable_system_monitor:=true \
     enable_social_skills:=true \
+    enable_face_pipeline:=${ENABLE_FACE_PIPELINE} \
+    enable_cmd_vel_mux:=true \
     enable_gesture_node:=false \
     enable_animation_executor:=true \
     return_to_neutral_after_animation:=true \
@@ -140,8 +150,8 @@ PY
  python2 /tmp/open_dashboard_dynamic.py" || true
 
 echo "[6] Basic ROS checks..."
-ros2 node list | grep -E "naoqi|whisper|openai|vlm|speech|dashboard|teleop|social|animation|system_monitor" || true
-ros2 topic list | grep -E "whisper_transcript|openai_response|smolvlm|pepper/animation|cmd_vel|joy|camera/front|audio|speech" || true
+ros2 node list | grep -E "naoqi|whisper|openai|vlm|speech|dashboard|teleop|social|animation|system_monitor|cmd_vel_mux|detection|tracking" || true
+ros2 topic list | grep -E "whisper_transcript|openai_response|smolvlm|pepper/animation|cmd_vel|joy|camera/front|audio|speech|recognized_faces" || true
 
 echo "========================================"
 echo "Headless start completed."

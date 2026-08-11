@@ -1,9 +1,16 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription, OpaqueFunction, TimerAction
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription, OpaqueFunction, TimerAction, LogInfo
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 import os
+
+
+DEFAULT_NAO_IP = os.environ.get("PEPPER_IP", "192.168.100.20")
+DEFAULT_HOST_IP = os.environ.get("PEPPER_HOST_IP", os.environ.get("HOST_IP", "192.168.100.172"))
+DEFAULT_PEPPER_WS = os.path.expanduser(os.environ.get("PEPPER_WS", "~/pepper_ws"))
+DEFAULT_MAP = os.path.join(DEFAULT_PEPPER_WS, "maps", "pepper_environment.yaml")
+DEFAULT_WAYPOINTS = os.path.join(DEFAULT_PEPPER_WS, "maps", "pepper_waypoints.yaml")
 
 
 def as_bool(value: str) -> bool:
@@ -12,10 +19,9 @@ def as_bool(value: str) -> bool:
 
 def launch_setup(context, *args, **kwargs):
     nao_ip = context.launch_configurations["nao_ip"]
-    host_ip = context.launch_configurations["host_ip"]
-    dashboard_port = context.launch_configurations["dashboard_port"]
     map_file = context.launch_configurations["map"]
     params_file = context.launch_configurations["params_file"]
+    waypoints_file = context.launch_configurations["waypoints_file"]
 
     enable_posture_reset = as_bool(context.launch_configurations["enable_posture_reset"])
     enable_driver = as_bool(context.launch_configurations["enable_driver"])
@@ -29,6 +35,12 @@ def launch_setup(context, *args, **kwargs):
     enable_teleop = as_bool(context.launch_configurations["enable_teleop"])
 
     actions = []
+    if enable_nav2 and enable_teleop:
+        actions.append(LogInfo(msg=(
+            "WARNING: enable_nav2 and enable_teleop are both true. "
+            "Keep only one /cmd_vel source active (prefer enable_teleop:=false for autonomous nav)."
+        )))
+
     nav2_launch = os.path.join(get_package_share_directory("nav2_bringup"), "launch", "bringup_launch.py")
     naoqi_driver_launch = os.path.join(get_package_share_directory("naoqi_driver"), "launch", "naoqi_driver.launch.py")
     pepper_rviz_launch = os.path.join(get_package_share_directory("pepper_navigation"), "launch", "pepper_rviz.launch.py")
@@ -83,7 +95,7 @@ def launch_setup(context, *args, **kwargs):
                               "save_place_topic": "/pepper/save_place",
                               "go_to_place_topic": "/pepper/go_to_place",
                               "status_topic": "/pepper/semantic_status",
-                              "waypoints_file": "/home/robot/pepper_ws/maps/pepper_waypoints.yaml",
+                              "waypoints_file": waypoints_file,
                               "navigate_action": "navigate_to_pose"}])
         ]))
 
@@ -123,10 +135,11 @@ def generate_launch_description():
     default_params = os.path.join(pkg_share, "config", "nav2_params_pepper.yaml")
 
     return LaunchDescription([
-        DeclareLaunchArgument("nao_ip", default_value="192.168.100.20"),
-        DeclareLaunchArgument("host_ip", default_value="192.168.100.172"),
+        DeclareLaunchArgument("nao_ip", default_value=DEFAULT_NAO_IP),
+        DeclareLaunchArgument("host_ip", default_value=DEFAULT_HOST_IP),
         DeclareLaunchArgument("dashboard_port", default_value="5000"),
-        DeclareLaunchArgument("map", default_value="/home/robot/pepper_ws/maps/pepper_environment.yaml"),
+        DeclareLaunchArgument("map", default_value=DEFAULT_MAP),
+        DeclareLaunchArgument("waypoints_file", default_value=DEFAULT_WAYPOINTS),
         DeclareLaunchArgument("params_file", default_value=default_params),
         DeclareLaunchArgument("enable_posture_reset", default_value="true"),
         DeclareLaunchArgument("enable_driver", default_value="true"),

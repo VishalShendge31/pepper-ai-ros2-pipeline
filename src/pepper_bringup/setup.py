@@ -40,6 +40,7 @@ setup(
     entry_points={
         "console_scripts": [
             "system_monitor = pepper_bringup.system_monitor:main",
+            "cmd_vel_mux = pepper_bringup.cmd_vel_mux:main",
         ],
     },
 )

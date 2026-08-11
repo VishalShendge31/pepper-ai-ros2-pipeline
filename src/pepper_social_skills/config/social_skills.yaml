@@ -2,8 +2,10 @@ social_skill_manager:
   ros__parameters:
     transcript_topic: "/whisper_transcript"
     vlm_topic: "/smolvlm/output"
+    recognized_faces_topic: "/recognized_faces"
+    use_face_detections: true
     response_topic: "/openai_response"
-    cmd_vel_topic: "/cmd_vel"
+    cmd_vel_topic: "/cmd_vel_social"
     state_topic: "/social_skill/state"
     event_topic: "/social_skill/event"
     active_skill_topic: "/social_skill/active_skill"

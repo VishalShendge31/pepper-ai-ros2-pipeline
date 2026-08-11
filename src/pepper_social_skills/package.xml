@@ -13,6 +13,7 @@
   <depend>openai_server_interfaces</depend>
   <depend>naoqi_bridge_msgs</depend>
 
+  <exec_depend>python3-numpy</exec_depend>
   <exec_depend>ros2launch</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
