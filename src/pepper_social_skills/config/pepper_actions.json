@@ -1,0 +1,167 @@
+{
+  "triggers": {
+    "vlm_wave_keywords": [
+      "waving",
+      "wave",
+      "winkt",
+      "winken",
+      "raised_hand",
+      "hand_raised",
+      "hand hoch",
+      "gehobene hand"
+    ],
+    "wave_action": "wave_right_hand_smooth",
+    "speech_action": "speech_explain_smooth",
+    "speech_actions": [
+      "speech_explain_smooth",
+      "speech_present_right",
+      "speech_present_left"
+    ],
+    "neutral_action": "neutral_both_arms",
+    "response_keyword_actions": {
+      "hallo": "wave_right_hand_smooth",
+      "hello": "wave_right_hand_smooth",
+      "tschüss": "wave_right_hand_smooth",
+      "goodbye": "wave_right_hand_smooth",
+      "ja": "speech_present_right",
+      "nein": "speech_present_left"
+    },
+    "vlm_keyword_actions": {
+      "waving": "wave_right_hand_smooth",
+      "raised_hand": "wave_right_hand_smooth"
+    }
+  },
+  "actions": {
+    "neutral_both_arms": {
+      "description": "Relaxed arms-down neutral pose",
+      "repeatable": false,
+      "steps": [
+        {
+          "joint_names": [
+            "LShoulderPitch", "LShoulderRoll", "LElbowYaw", "LElbowRoll", "LWristYaw",
+            "RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll", "RWristYaw"
+          ],
+          "joint_angles": [
+            1.45, 0.15, -1.20, -0.50, 0.0,
+            1.45, -0.15, 1.20, 0.50, 0.0
+          ],
+          "speed": 0.20,
+          "hold_sec": 0.4
+        }
+      ]
+    },
+    "wave_right_hand_smooth": {
+      "description": "Right-hand greeting wave",
+      "repeatable": false,
+      "finish_action": "neutral_both_arms",
+      "steps": [
+        {
+          "joint_names": [
+            "RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll", "RWristYaw"
+          ],
+          "joint_angles": [0.35, -0.55, 1.20, 0.90, 0.0],
+          "speed": 0.18,
+          "hold_sec": 0.35
+        },
+        {
+          "joint_names": [
+            "RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll", "RWristYaw"
+          ],
+          "joint_angles": [0.35, -0.20, 1.20, 0.70, 0.0],
+          "speed": 0.25,
+          "hold_sec": 0.25
+        },
+        {
+          "joint_names": [
+            "RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll", "RWristYaw"
+          ],
+          "joint_angles": [0.35, -0.55, 1.20, 0.90, 0.0],
+          "speed": 0.25,
+          "hold_sec": 0.25
+        },
+        {
+          "joint_names": [
+            "RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll", "RWristYaw"
+          ],
+          "joint_angles": [0.35, -0.20, 1.20, 0.70, 0.0],
+          "speed": 0.25,
+          "hold_sec": 0.30
+        }
+      ]
+    },
+    "speech_explain_smooth": {
+      "description": "Soft two-handed explain gesture while speaking",
+      "repeatable": true,
+      "steps": [
+        {
+          "joint_names": [
+            "LShoulderPitch", "LShoulderRoll", "LElbowYaw", "LElbowRoll",
+            "RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll"
+          ],
+          "joint_angles": [
+            1.05, 0.28, -1.10, -0.70,
+            1.05, -0.28, 1.10, 0.70
+          ],
+          "speed": 0.12,
+          "hold_sec": 0.8
+        },
+        {
+          "joint_names": [
+            "LShoulderPitch", "LShoulderRoll", "LElbowYaw", "LElbowRoll",
+            "RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll"
+          ],
+          "joint_angles": [
+            1.20, 0.18, -1.15, -0.55,
+            1.20, -0.18, 1.15, 0.55
+          ],
+          "speed": 0.12,
+          "hold_sec": 0.8
+        }
+      ]
+    },
+    "speech_present_right": {
+      "description": "Present / emphasize with the right arm",
+      "repeatable": true,
+      "steps": [
+        {
+          "joint_names": [
+            "RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll", "RWristYaw"
+          ],
+          "joint_angles": [0.90, -0.35, 1.10, 0.75, -0.20],
+          "speed": 0.14,
+          "hold_sec": 1.0
+        },
+        {
+          "joint_names": [
+            "RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll", "RWristYaw"
+          ],
+          "joint_angles": [1.10, -0.20, 1.15, 0.55, 0.0],
+          "speed": 0.12,
+          "hold_sec": 0.7
+        }
+      ]
+    },
+    "speech_present_left": {
+      "description": "Present / emphasize with the left arm",
+      "repeatable": true,
+      "steps": [
+        {
+          "joint_names": [
+            "LShoulderPitch", "LShoulderRoll", "LElbowYaw", "LElbowRoll", "LWristYaw"
+          ],
+          "joint_angles": [0.90, 0.35, -1.10, -0.75, 0.20],
+          "speed": 0.14,
+          "hold_sec": 1.0
+        },
+        {
+          "joint_names": [
+            "LShoulderPitch", "LShoulderRoll", "LElbowYaw", "LElbowRoll", "LWristYaw"
+          ],
+          "joint_angles": [1.10, 0.20, -1.15, -0.55, 0.0],
+          "speed": 0.12,
+          "hold_sec": 0.7
+        }
+      ]
+    }
+  }
+}

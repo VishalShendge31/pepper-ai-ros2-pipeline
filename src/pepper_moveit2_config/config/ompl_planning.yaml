@@ -1,0 +1,48 @@
+planning_plugin: ompl_interface/OMPLPlanner
+request_adapters: >-
+  default_planner_request_adapters/AddTimeOptimalParameterization
+  default_planner_request_adapters/ResolveConstraintFrames
+  default_planner_request_adapters/FixWorkspaceBounds
+  default_planner_request_adapters/FixStartStateBounds
+  default_planner_request_adapters/FixStartStateCollision
+  default_planner_request_adapters/FixStartStatePathConstraints
+start_state_max_bounds_error: 0.1
+
+planner_configs:
+  RRTConnectkConfigDefault:
+    type: geometric::RRTConnect
+    range: 0.0
+  RRTstarkConfigDefault:
+    type: geometric::RRTstar
+    range: 0.0
+    delay_collision_checking: 1
+
+right_arm:
+  planner_configs:
+    - RRTConnectkConfigDefault
+    - RRTstarkConfigDefault
+  projection_evaluator: joints(RShoulderPitch,RShoulderRoll)
+  longest_valid_segment_fraction: 0.05
+
+left_arm:
+  planner_configs:
+    - RRTConnectkConfigDefault
+    - RRTstarkConfigDefault
+  projection_evaluator: joints(LShoulderPitch,LShoulderRoll)
+  longest_valid_segment_fraction: 0.05
+
+both_arms:
+  planner_configs:
+    - RRTConnectkConfigDefault
+    - RRTstarkConfigDefault
+  longest_valid_segment_fraction: 0.05
+
+head:
+  planner_configs:
+    - RRTConnectkConfigDefault
+  longest_valid_segment_fraction: 0.05
+
+upper_body:
+  planner_configs:
+    - RRTConnectkConfigDefault
+  longest_valid_segment_fraction: 0.05

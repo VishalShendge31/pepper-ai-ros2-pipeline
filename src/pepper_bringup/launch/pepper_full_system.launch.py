@@ -189,7 +189,7 @@ def generate_launch_description():
                             "process_interval_sec": 1.5,
                             "model_name": "HuggingFaceTB/SmolVLM-500M-Instruct",
                             "max_new_tokens": 160,
-                            "fallback_scene_enabled": True,
+                            "emit_structured_fields": True,
                         }
                     ],
                 )

@@ -1,0 +1,23 @@
+pepper_custom_tts:
+  ros__parameters:
+    input_topic: "/openai_response"
+    status_topic: "/pepper_tts/status"
+    audio_path_topic: "/pepper_tts/audio_file"
+    tts_server_url: "http://127.0.0.1:8765/tts"
+    request_timeout_sec: 180.0
+    default_emotion: "neutral"
+    max_text_chars: 350
+    drop_when_busy: true
+    playback_mode: "pepper_ssh"
+    local_player_cmd: "aplay"
+    robot_ip: "192.168.100.20"
+    robot_user: "nao"
+    ssh_port: 22
+    remote_audio_dir: "/home/nao"
+    remote_audio_filename: "custom_tts_output.wav"
+    unique_remote_filename: false
+    wake_before_speak: false
+    ssh_connect_timeout_sec: 10
+    scp_timeout_sec: 60
+    pepper_play_timeout_sec: 120
+    delete_local_after_playback: false

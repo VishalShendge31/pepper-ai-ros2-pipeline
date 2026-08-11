@@ -1,0 +1,29 @@
+moveit_simple_controller_manager:
+  controller_names:
+    - fake_right_arm_controller
+    - fake_left_arm_controller
+    - fake_head_controller
+
+  fake_right_arm_controller:
+    type: FollowJointTrajectory
+    joints:
+      - RShoulderPitch
+      - RShoulderRoll
+      - RElbowYaw
+      - RElbowRoll
+      - RWristYaw
+
+  fake_left_arm_controller:
+    type: FollowJointTrajectory
+    joints:
+      - LShoulderPitch
+      - LShoulderRoll
+      - LElbowYaw
+      - LElbowRoll
+      - LWristYaw
+
+  fake_head_controller:
+    type: FollowJointTrajectory
+    joints:
+      - HeadYaw
+      - HeadPitch

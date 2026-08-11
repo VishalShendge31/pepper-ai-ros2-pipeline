@@ -25,8 +25,8 @@ setup(
     entry_points={
         'console_scripts': [
             'pepper_vlm_node = pepper_vlm.pepper_vlm_node:main',
-            'pepper_camera_face_preprocessor = pepper_vlm.pepper_camera_face_preprocessor:main'
-            'detection_layer = pepper_vlm.detection_layer:main'
+            'pepper_camera_face_preprocessor = pepper_vlm.pepper_camera_face_preprocessor:main',
+            'detection_layer = pepper_vlm.detection_layer:main',
         ],
     },
 )

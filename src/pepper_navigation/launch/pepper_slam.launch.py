@@ -1,9 +1,15 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
+from launch.substitutions import PathJoinSubstitution
 
 
 def generate_launch_description():
-    slam_config = "/home/robot/pepper_ws/src/pepper_navigation/config/slam_toolbox.yaml"
+    slam_config = PathJoinSubstitution([
+        FindPackageShare("pepper_navigation"),
+        "config",
+        "slam_toolbox.yaml",
+    ])
 
     return LaunchDescription([
         Node(

@@ -1,0 +1,29 @@
+social_skill_manager:
+  ros__parameters:
+    transcript_topic: "/whisper_transcript"
+    vlm_topic: "/smolvlm/output"
+    response_topic: "/openai_response"
+    cmd_vel_topic: "/cmd_vel"
+    state_topic: "/social_skill/state"
+    event_topic: "/social_skill/event"
+    active_skill_topic: "/social_skill/active_skill"
+    openai_service: "/openai_ask"
+    language: "de"
+    reset_conversation: true
+    auto_greet_enabled: false
+    auto_wave_response_enabled: false
+    require_person_for_auto_greet: true
+    greet_cooldown_sec: 30.0
+    interaction_timeout_sec: 25.0
+    enable_motion: false
+    stop_motion_on_stop_command: true
+    robot_name: "Pepper"
+    project_name: "Architektur sozialer Fähigkeiten"
+    system_prompt: >
+      Du bist Pepper, ein humanoider sozialer Roboter.
+      Du bist Teil des Projekts Architektur sozialer Fähigkeiten.
+      Antworte immer auf Deutsch.
+      Antworte kurz, klar und natürlich, damit die Antwort gut gesprochen werden kann.
+      Nutze den Kamerakontext natürlich, wenn er verfügbar ist.
+      Sage nicht, dass du eine visuelle Beschreibung erhalten hast.
+      Sei höflich, sozial aufmerksam und verständlich.

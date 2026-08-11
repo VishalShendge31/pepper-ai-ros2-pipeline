@@ -1,0 +1,64 @@
+{
+  "tags": {
+    "greeting": ["Hey_1", "Hey_6"],
+    "wave": ["Hey_1"],
+    "explain": ["Explain_1", "Explain_2"],
+    "yes": ["Yes_1", "Yes_2"],
+    "no": ["No_1", "No_3"],
+    "thinking": ["Thinking_1", "Thinking_3"]
+  },
+  "animations": {
+    "Hey_1": {
+      "path": "animations/Stand/Gestures/Hey_1",
+      "description": "Friendly greeting wave"
+    },
+    "Hey_6": {
+      "path": "animations/Stand/Gestures/Hey_6",
+      "description": "Alternate greeting gesture"
+    },
+    "Explain_1": {
+      "path": "animations/Stand/Gestures/Explain_1",
+      "description": "Explain with both hands"
+    },
+    "Explain_2": {
+      "path": "animations/Stand/Gestures/Explain_2",
+      "description": "Alternate explain gesture"
+    },
+    "Yes_1": {
+      "path": "animations/Stand/Gestures/Yes_1",
+      "description": "Affirmative nod/gesture"
+    },
+    "Yes_2": {
+      "path": "animations/Stand/Gestures/Yes_2",
+      "description": "Alternate yes gesture"
+    },
+    "No_1": {
+      "path": "animations/Stand/Gestures/No_1",
+      "description": "Negative gesture"
+    },
+    "No_3": {
+      "path": "animations/Stand/Gestures/No_3",
+      "description": "Alternate no gesture"
+    },
+    "Thinking_1": {
+      "path": "animations/Stand/Gestures/Thinking_1",
+      "description": "Thinking pose"
+    },
+    "Thinking_3": {
+      "path": "animations/Stand/Gestures/Thinking_3",
+      "description": "Alternate thinking pose"
+    },
+    "ShowSky_1": {
+      "path": "animations/Stand/Gestures/ShowSky_1",
+      "description": "Point upward / present"
+    },
+    "Please_1": {
+      "path": "animations/Stand/Gestures/Please_1",
+      "description": "Polite please gesture"
+    }
+  },
+  "behaviors": {
+    "Tanzen": "demo/Tanzen",
+    "Elefant": "demo/Elefant"
+  }
+}

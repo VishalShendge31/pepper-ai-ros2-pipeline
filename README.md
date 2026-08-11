@@ -417,8 +417,15 @@ OpenAI usage incurs API cost. Local models need disk space, GPU memory, and firs
 
 ## Configuration notes
 
-- Many launches assume deploy paths under `/home/robot/pepper_ws` on the Jetson. Adjust paths if your username differs.
-- Social skills launches expect config files under `pepper_social_skills/config/` (e.g. `social_skills.yaml`, animation JSON). Create or restore those configs before enabling social skills in production.
+- Many launches assume deploy paths under `~/pepper_ws` (or `/home/robot/pepper_ws` on some Jetsons). Adjust paths if your username differs.
+- Default social / animation configs ship in-repo under `pepper_social_skills/config/`:
+  - `social_skills.yaml`
+  - `pepper_actions.json`
+  - `pepper_naoqi_animations.json`
+- SLAM defaults: `pepper_navigation/config/slam_toolbox.yaml`, `pepper_semantic_navigation/config/slam_toolbox_pepper.yaml`
+- MoveIt starter configs: `pepper_moveit2_config/config/` (validate named poses in RViz before real-robot execution)
+- `pepper_vlm` publishes structured `PERSON` / `GESTURE` / `EMOTION` / `SCENE` lines so `social_skill_manager` can consume camera context
+- Headless Jetson start: `./start_pepper_system_headless.sh` (uses `OPENAI_API_KEY` from the environment; no `gnome-terminal`)
 - Default language behavior in speech helpers is oriented toward **German**; Whisper can be set with `whisper_language:=auto` (or a specific language code).
 
 ---

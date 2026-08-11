@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Manual MoveIt 2 SRDF for SoftBank Pepper (JulietteY20MP). -->
+<robot name="JulietteY20MP">
+  <group name="right_arm">
+    <joint name="RShoulderPitch" />
+    <joint name="RShoulderRoll" />
+    <joint name="RElbowYaw" />
+    <joint name="RElbowRoll" />
+    <joint name="RWristYaw" />
+  </group>
+
+  <group name="left_arm">
+    <joint name="LShoulderPitch" />
+    <joint name="LShoulderRoll" />
+    <joint name="LElbowYaw" />
+    <joint name="LElbowRoll" />
+    <joint name="LWristYaw" />
+  </group>
+
+  <group name="both_arms">
+    <group name="left_arm" />
+    <group name="right_arm" />
+  </group>
+
+  <group name="head">
+    <joint name="HeadYaw" />
+    <joint name="HeadPitch" />
+  </group>
+
+  <group name="upper_body">
+    <group name="head" />
+    <group name="both_arms" />
+  </group>
+
+  <group_state name="right_neutral" group="right_arm">
+    <joint name="RShoulderPitch" value="1.55" />
+    <joint name="RShoulderRoll" value="-0.10" />
+    <joint name="RElbowYaw" value="1.55" />
+    <joint name="RElbowRoll" value="0.05" />
+    <joint name="RWristYaw" value="0.0" />
+  </group_state>
+
+  <group_state name="left_neutral" group="left_arm">
+    <joint name="LShoulderPitch" value="1.55" />
+    <joint name="LShoulderRoll" value="0.10" />
+    <joint name="LElbowYaw" value="-1.55" />
+    <joint name="LElbowRoll" value="-0.05" />
+    <joint name="LWristYaw" value="0.0" />
+  </group_state>
+
+  <group_state name="neutral_arms" group="both_arms">
+    <joint name="LShoulderPitch" value="1.55" />
+    <joint name="LShoulderRoll" value="0.10" />
+    <joint name="LElbowYaw" value="-1.55" />
+    <joint name="LElbowRoll" value="-0.05" />
+    <joint name="LWristYaw" value="0.0" />
+    <joint name="RShoulderPitch" value="1.55" />
+    <joint name="RShoulderRoll" value="-0.10" />
+    <joint name="RElbowYaw" value="1.55" />
+    <joint name="RElbowRoll" value="0.05" />
+    <joint name="RWristYaw" value="0.0" />
+  </group_state>
+
+  <group_state name="both_arms_down" group="both_arms">
+    <joint name="LShoulderPitch" value="1.55" />
+    <joint name="LShoulderRoll" value="0.10" />
+    <joint name="LElbowYaw" value="-1.55" />
+    <joint name="LElbowRoll" value="-0.05" />
+    <joint name="LWristYaw" value="0.0" />
+    <joint name="RShoulderPitch" value="1.55" />
+    <joint name="RShoulderRoll" value="-0.10" />
+    <joint name="RElbowYaw" value="1.55" />
+    <joint name="RElbowRoll" value="0.05" />
+    <joint name="RWristYaw" value="0.0" />
+  </group_state>
+
+  <group_state name="right_arm_down" group="right_arm">
+    <joint name="RShoulderPitch" value="1.55" />
+    <joint name="RShoulderRoll" value="-0.10" />
+    <joint name="RElbowYaw" value="1.55" />
+    <joint name="RElbowRoll" value="0.05" />
+    <joint name="RWristYaw" value="0.0" />
+  </group_state>
+
+  <group_state name="left_arm_down" group="left_arm">
+    <joint name="LShoulderPitch" value="1.55" />
+    <joint name="LShoulderRoll" value="0.10" />
+    <joint name="LElbowYaw" value="-1.55" />
+    <joint name="LElbowRoll" value="-0.05" />
+    <joint name="LWristYaw" value="0.0" />
+  </group_state>
+
+  <group_state name="right_hand_up" group="right_arm">
+    <joint name="RShoulderPitch" value="0.20" />
+    <joint name="RShoulderRoll" value="-0.45" />
+    <joint name="RElbowYaw" value="1.20" />
+    <joint name="RElbowRoll" value="0.85" />
+    <joint name="RWristYaw" value="0.0" />
+  </group_state>
+
+  <group_state name="right_present" group="right_arm">
+    <joint name="RShoulderPitch" value="0.90" />
+    <joint name="RShoulderRoll" value="-0.35" />
+    <joint name="RElbowYaw" value="1.10" />
+    <joint name="RElbowRoll" value="0.75" />
+    <joint name="RWristYaw" value="-0.20" />
+  </group_state>
+
+  <group_state name="right_wave_start" group="right_arm">
+    <joint name="RShoulderPitch" value="0.35" />
+    <joint name="RShoulderRoll" value="-0.55" />
+    <joint name="RElbowYaw" value="1.20" />
+    <joint name="RElbowRoll" value="0.90" />
+    <joint name="RWristYaw" value="0.0" />
+  </group_state>
+
+  <group_state name="right_wave_end" group="right_arm">
+    <joint name="RShoulderPitch" value="0.35" />
+    <joint name="RShoulderRoll" value="-0.20" />
+    <joint name="RElbowYaw" value="1.20" />
+    <joint name="RElbowRoll" value="0.70" />
+    <joint name="RWristYaw" value="0.0" />
+  </group_state>
+
+  <group_state name="left_present" group="left_arm">
+    <joint name="LShoulderPitch" value="0.90" />
+    <joint name="LShoulderRoll" value="0.35" />
+    <joint name="LElbowYaw" value="-1.10" />
+    <joint name="LElbowRoll" value="-0.75" />
+    <joint name="LWristYaw" value="0.20" />
+  </group_state>
+
+  <group_state name="head_forward" group="head">
+    <joint name="HeadYaw" value="0.0" />
+    <joint name="HeadPitch" value="0.0" />
+  </group_state>
+
+  <disable_collisions link1="Head" link2="torso" reason="Adjacent" />
+  <disable_collisions link1="LShoulder" link2="torso" reason="Adjacent" />
+  <disable_collisions link1="RShoulder" link2="torso" reason="Adjacent" />
+</robot>
